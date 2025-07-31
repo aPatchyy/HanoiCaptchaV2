@@ -1,0 +1,142 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#captcha-container {
+    position: relative;
+    background: white;
+    color: white;
+    width: 390px;
+    height: 300px;
+
+    display: grid;
+    grid: 1fr 1fr / 1fr;
+    overflow: hidden;
+}
+
+#top-bar {
+    display: grid;
+    grid: 1fr / 1fr;
+    align-items: start;
+}
+
+#top-bar > div {
+    height: 40px;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 10px 20px;
+    display: grid;
+    grid: 1fr / 1fr;
+    align-items: center;
+}
+
+#top-bar button {
+    fill: white;
+    background: none;
+    border: none;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+}
+
+#top-bar button:hover {
+    fill: #5c32f5;
+    background: white;
+    cursor: pointer;
+}
+
+#main-bar {
+    background: #5c32f5;
+}
+
+#main-bar > div {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 10px;
+}
+
+#move-text {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+#timer-text {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    font-size: 20px;
+}
+
+#fail-bar {
+    background: #a83939;
+    justify-items: center;
+}
+
+#success-bar {
+    background: #40a839;
+    justify-items: center;
+}
+
+
+#game-container {
+    grid-row: 2/-1;
+    grid-column: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr;
+    justify-items: center;
+    align-items: end;
+    gap: 5px;
+    margin-inline: 5px;
+}
+
+.tower {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5px;
+    border-bottom: 10px solid rgb(52, 33, 24);
+    width: 100%;
+}
+
+.tower::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 200px;
+    background-color: rgb(52, 33, 24);
+    left: 50%;
+    bottom: -5px;
+    border-radius: 5px;
+    transform: translate(-50%);
+}
+
+.top {
+    cursor: pointer;
+}
+
+.moving {
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.disk {
+    z-index: 1;
+}
+
+

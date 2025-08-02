@@ -3,47 +3,38 @@ export class Tower {
         this.element = element
         this.disks = disks
     }
-    
-    hasDisk() {
-        return this.disks.length > 0 
+
+    get topDisk() {
+        return this.disks[this.disks.length - 1] || null
     }
 
-    getTopDisk() {
-        return this.hasDisk() ? this.disks[this.disks.length - 1] : null
-    }
-
-    isTopDisk(disk) {
-        disk.element = this.getTopDisk()?.element
+    isEmpty() {
+        return this.disks.length === 0
     }
 
     canPlace(disk) {
-        return !this.hasDisk() || this.getTopDisk().isLargerThan(disk)
+        return this.isEmpty() || this.topDisk.isLargerThan(disk)
     }
 
-    placeDisk(disk) {
-        if(this.canPlace(disk)) {
-            this.getTopDisk()?.element.classList.remove("top")
-            disk.element.classList.add("top")
-            this.disks.push(disk)
-            this.element.prepend(disk.element)
-            return true
-        } 
-        return false
+    place(disk) {
+        this.topDisk?.element.classList.remove("top")
+        disk.element.classList.add("top")
+        this.disks.push(disk)
+        this.element.prepend(disk.element)
     }
 
-    removeDisk() {
-        if(this.hasDisk()) {
-            let topDisk = this.disks.pop()
-            this.element.removeChild(topDisk.element)
-            this.getTopDisk()?.element.classList.add("top")
-            return topDisk
-        }
-        return null
+    remove() {
+        if (this.isEmpty())
+            return null
+        const disk = this.disks.pop()
+        this.element.removeChild(disk.element)
+        this.topDisk?.element.classList.add("top")
+        return disk
     }
 
-    removeAllDisks() {
-        while(this.hasDisk()) {
-            this.removeDisk()
+    clear() {
+        while (!this.isEmpty()) {
+            this.remove()
         }
     }
 
@@ -51,3 +42,4 @@ export class Tower {
         return this.element === otherTower.element
     }
 }
+

@@ -1,19 +1,26 @@
 export class Stage {
     static MINIMUM_TIME_LIMIT = 10
 
-    constructor(numberOfDisks = 3, params = { moveLimit: null, timeLimit: null }) {
-        this.numberOfDisks = numberOfDisks < 1 ? 1 : numberOfDisks
+    constructor({numberOfDisks, moveLimit, timeLimit} = {numberOfDisks: 3}) {
+        if(numberOfDisks == null || numberOfDisks < 1) {
+            this.numberOfDisks = 1
+        } else {
+            this.numberOfDisks = numberOfDisks
+        }
+
         const optimalMoveCount = Math.pow(2, this.numberOfDisks) - 1
-
-        if (params.moveLimit != null && params.moveLimit < optimalMoveCount)
+        if(moveLimit != null && moveLimit < optimalMoveCount) {
             this.moveLimit = optimalMoveCount
-        else
-            this.moveLimit = params.moveLimit
+        } else {
+            this.moveLimit = moveLimit
+        }
 
-        if (params.timeLimit != null && params.timeLimit < Stage.MINIMUM_TIME_LIMIT)
+        if(timeLimit != null && timeLimit < Stage.MINIMUM_TIME_LIMIT) {
             this.timeLimit = Stage.MINIMUM_TIME_LIMIT
-        else
-            this.timeLimit = params.timeLimit
+        } else {
+            this.timeLimit = timeLimit
+        }
+        
     }
 
     hasTimeLimit() {

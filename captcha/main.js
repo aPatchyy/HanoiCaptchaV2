@@ -3,7 +3,6 @@ import { Stage } from "./stage.js";
 import { Tower } from "./tower.js";
 import { Timer } from "./timer.js";
 
-
 // Customize disk size and colors with static variables in Disk.js
 // e.g. Disk.MINIMUM_WIDTH = 100
 
@@ -17,9 +16,9 @@ import { Timer } from "./timer.js";
 */
 
 const STAGES = [
-    new Stage(3, { moveLimit: 7 }),
-    new Stage(4, { timeLimit: 30 }),
-    new Stage(6, { timeLimit: 150, moveLimit: 80 })
+    new Stage({ numberOfDisks: 3, moveLimit: 7 }),
+    new Stage({ numberOfDisks: 4, timeLimit: 30 }),
+    new Stage({ numberOfDisks: 6, moveLimit: 80, timeLimit: 150 })
 ]
 
 const TOWERS = [
@@ -42,7 +41,7 @@ const timerText = document.getElementById("timer-text")
 let stageIndex = 0
 let moveCount = 0
 let timer = new Timer()
-timer.onTick = updateTime
+timer.onTick = updateTimeText
 timer.onFinish = handleTimeout
 
 let selectedDisk = null
@@ -57,24 +56,28 @@ restartButton.addEventListener("click", initializeStage)
 infoButton.addEventListener('click', showInstruction)
 
 initializeStage()
-showInstruction()
 
 function initializeStage() {
+    captchaContainer.removeEventListener("pointermove", handleMove)
+    selectedDisk?.element.remove()
+    selectedDisk = null
+    startTower = null
+    endTower = null
+
     TOWERS.forEach(tower => tower.clear())
     setMoveCount(0)
 
     const stage = STAGES[stageIndex]
 
-    for (let i = stage.numberOfDisks - 1; i >= 0; i--)
+    for (let i = stage.numberOfDisks - 1; i >= 0; i--) {
         TOWERS[0].place(new Disk(i))
+    }
 
     if (stage.hasTimeLimit()) {
         timer.setDuration(stage.timeLimit)
         timer.reset()
-        updateTime()
+        updateTimeText()
     }
-
-    hideInstruction()
 }
 
 function restart() {
@@ -107,7 +110,7 @@ function handlePlace(e) {
     captchaContainer.releasePointerCapture(e.pointerId)
     captchaContainer.removeEventListener("pointermove", handleMove)
 
-    const towerIndex = Math.floor(e.pageX / (gameContainer.getBoundingClientRect().width / 3))
+    const towerIndex = Math.floor(e.pageX / (gameContainer.getBoundingClientRect().width / TOWERS.length))
     endTower = TOWERS[towerIndex] || null
 
     if (endTower !== null && !endTower.equals(startTower) && endTower.canPlace(selectedDisk)) {
@@ -129,11 +132,13 @@ function handlePlace(e) {
 
 
     if (STAGES[stageIndex].hasMoveLimit() && moveCount > STAGES[stageIndex].moveLimit) {
-        displayFailMessage(`Must complete in ${STAGES[stageIndex].moveLimit} moves or less.`)
-        initializeStage()
+        showFailMessage({
+            html: `Must complete in ${STAGES[stageIndex].moveLimit} moves or less.`,
+            duration: 3,
+            callback: initializeStage
+        })
     }
-
-    checkForSuccess()
+    checkForSolved()
 }
 
 function handleMove(e) {
@@ -144,35 +149,33 @@ function handleMove(e) {
 }
 
 function handleTimeout() {
-    captchaContainer.removeEventListener("pointermove", handleMove)
-    selectedDisk?.element.remove()
-    selectedDisk = null
-    startTower = null
-    endTower = null
-    displayFailMessage("You ran out of time!")
-    initializeStage()
+    showFailMessage({
+        html: "You ran out of time!",
+        duration: 2,
+        callback: initializeStage
+    })
 }
 
-function checkForSuccess() {
+function checkForSolved() {
     if (TOWERS[0].isEmpty() && TOWERS[1].isEmpty()) {
         timer.stop()
         const isLastStage = stageIndex === STAGES.length - 1
-        stageIndex++
 
         if (!isLastStage) {
-            displaySuccessMessage("<strong>Solved!</strong> Continue for additional verification.")
+            showSuccessMessage({
+                html: "<strong>Solved!</strong> Continue to complete verification.",
+                duration: 2,
+                callback: initializeStage
+            })
+            stageIndex++
         } else {
             const randomPercent = (Math.random() * Math.random() * 100).toFixed(2)
-            displaySuccessMessage(`<strong>Verified!</strong> You beat ${randomPercent}% of users!`)
+            showSuccessMessage({
+                html: `<strong>Verified!</strong> You beat ${randomPercent}% of users!`,
+                duration: 3,
+                callback: () => window.top.postMessage("success", '*')
+            })
         }
-
-        setTimeout(() => {
-            if (!isLastStage) {
-                initializeStage()
-            } else {
-                window.top.postMessage("success", '*');
-            }
-        }, 2000);
     }
 }
 
@@ -181,11 +184,11 @@ function setMoveCount(count) {
     moveText.textContent = moveCount === 1 ? "1 Move" : `${moveCount} Moves`
 }
 
-function updateTime() {
+function updateTimeText() {
     timerText.textContent = STAGES[stageIndex].hasTimeLimit() ? timer.toString() : "00:00"
 }
 
-function displaySuccessMessage(html, duration = 3000) {
+function showSuccessMessage({ html, duration, callback }) {
     const span = document.createElement("span")
     span.innerHTML = html
     successBar.appendChild(span)
@@ -195,8 +198,26 @@ function displaySuccessMessage(html, duration = 3000) {
     setTimeout(() => {
         hide(successBar)
         show(mainBar)
+        hideInstruction()
         successBar.removeChild(span)
-    }, duration);
+        callback?.call()
+    }, duration * 1000);
+}
+
+function showFailMessage({ html, duration, callback }) {
+    const span = document.createElement("span")
+    span.innerHTML = html
+    failBar.appendChild(span)
+    show(failBar)
+    hide(mainBar)
+
+    setTimeout(() => {
+        hide(failBar)
+        show(mainBar)
+        hideInstruction()
+        failBar.removeChild(span)
+        callback?.call()
+    }, duration * 1000);
 }
 
 function hideInstruction() {
@@ -213,20 +234,6 @@ function showInstruction() {
     hide(infoButton)
     hide(timerText)
     hide(moveText)
-}
-
-function displayFailMessage(html, duration = 3000) {
-    const span = document.createElement("span")
-    span.innerHTML = html
-    failBar.appendChild(span)
-    show(failBar)
-    hide(mainBar)
-
-    setTimeout(() => {
-        hide(failBar)
-        show(mainBar)
-        failBar.removeChild(span)
-    }, duration);
 }
 
 function hide(element) {

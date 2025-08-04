@@ -50,13 +50,13 @@ body {
 }
 
 #top-bar button:hover {
-    fill: #5c32f5;
+    fill: #3a7cff;
     background: white;
     cursor: pointer;
 }
 
 #main-bar {
-    background: #5c32f5;
+    background: #3a7cff;
 }
 
 #main-bar>div {
@@ -81,12 +81,12 @@ body {
 }
 
 #fail-bar {
-    background: #a83939;
+    background: #e5473c;
     justify-items: center;
 }
 
 #success-bar {
-    background: #40a839;
+    background: #00a63e;
     justify-items: center;
 }
 

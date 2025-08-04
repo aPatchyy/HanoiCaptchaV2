@@ -2,6 +2,7 @@ export class Disk {
     static MINIMUM_WIDTH = 50   //  Width of smallest disk
     static STEP_SIZE = 10   //  Size added to width of each additional disk
     static HEIGHT = 26  // Disk height or thickness
+    static OUTLINE_WIDTH = 1    //  Outline stroke width
 
     //  Disk fill colors determined by rank
     static COLORS = [
@@ -19,7 +20,7 @@ export class Disk {
         this.rank = rank < 0 ? 0 : rank
         const width = Disk.MINIMUM_WIDTH + rank * Disk.STEP_SIZE
         const fill = Disk.COLORS[rank % Disk.COLORS.length]
-        this.element = this.#createDiskElement(width, Disk.HEIGHT, fill, 1)
+        this.element = this.#createDiskElement(width, Disk.HEIGHT, fill, Disk.OUTLINE_WIDTH)
     }
 
     #createDiskElement(width, height, fill, strokeWidth = 0, stroke = "black") {
